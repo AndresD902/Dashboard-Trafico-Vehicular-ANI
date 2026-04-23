@@ -134,6 +134,4 @@ Durante la preparacion de la informacion, el proyecto:
 - Keith Smith Balaguera Rodriguez
 - Andres David Posada Patino
 
-## Estado del archivo
 
-Este `README.md` ya fue creado y guardado localmente en la ruta [README.md](c:/Users/posad/OneDrive/Escritorio/StreamLit/README.md).
