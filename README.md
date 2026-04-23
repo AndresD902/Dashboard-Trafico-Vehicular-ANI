@@ -93,6 +93,8 @@ StreamLit/
 2. Instalar las dependencias:
 
 ```bash
+python -m venv .venv 
+.venv\Scripts\activate  
 pip install -r requirements.txt
 ```
 
