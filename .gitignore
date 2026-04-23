@@ -1,0 +1,39 @@
+# Variables de entorno y secretos
+.env
+.env.*
+!.env.example
+.streamlit/secrets.toml
+
+# Entornos virtuales
+.venv/
+venv/
+env/
+ENV/
+
+# Cache y compilados de Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Herramientas de Python
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+.coverage.*
+htmlcov/
+
+# Archivos de distribucion
+build/
+dist/
+*.egg-info/
+.eggs/
+
+# Archivos de sistema y editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+
+# Jupyter
+.ipynb_checkpoints/
