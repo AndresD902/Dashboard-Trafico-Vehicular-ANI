@@ -1,6 +1,14 @@
 services:
   - type: web
     name: dashboard-peajes-colombia
-    env: python
-    buildCommand: pip install -r requirements.txt
-    startCommand: streamlit run app.py --server.port=$PORT --server.address=0.0.0.0
+    env: docker
+    plan: free
+    dockerfilePath: ./Dockerfile
+    autoDeploy: true
+    envVars:
+      - key: API_PEAJES_URL
+        value: https://www.datos.gov.co/resource/8yi9-t44c.json
+      - key: LIMITE_API
+        value: 50000
+      - key: SOCRATA_APP_TOKEN
+        sync: false

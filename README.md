@@ -51,27 +51,88 @@ Permite explorar los registros filtrados en forma tabular y descargar la muestra
 ## Estructura del proyecto
 
 ```text
-StreamLit/
+Dashboard-Trafico-Vehicular-ANI/
+|-- .dockerignore
+|-- .streamlit/
+|   |-- config.toml
 |-- app.py
-|-- requirements.txt
+|-- Dockerfile
+|-- README.md
 |-- render.yaml
+|-- requirements.txt
 |-- datos/
+|   |-- __init__.py
 |   |-- cliente_api.py
 |   |-- cargador.py
-|-- procesamiento/
-|   |-- limpieza.py
-|   |-- transformaciones.py
-|   |-- metricas.py
-|-- visualizaciones/
-|   |-- graficos.py
-|   |-- panel.py
-|-- utilidades/
-|   |-- configuracion.py
 |-- paginas/
 |   |-- 1_resumen.py
 |   |-- 2_analisis.py
 |   |-- 3_datos.py
+|-- procesamiento/
+|   |-- __init__.py
+|   |-- limpieza.py
+|   |-- metricas.py
+|   |-- transformaciones.py
+|-- utilidades/
+|   |-- __init__.py
+|   |-- configuracion.py
+|-- visualizaciones/
+|   |-- __init__.py
+|   |-- graficos.py
+|   |-- panel.py
 ```
+
+## Arquitectura del proyecto
+
+El proyecto sigue una arquitectura modular por capas, donde cada carpeta tiene una responsabilidad concreta dentro del flujo de datos del dashboard.
+
+### Capas principales
+
+- `app.py`: punto de entrada de la aplicacion. Configura Streamlit, aplica estilos globales y registra la navegacion entre paginas.
+- `datos/`: capa de acceso a datos. Se encarga de conectarse a la API publica de `datos.gov.co`, realizar las peticiones HTTP y centralizar la carga inicial.
+- `procesamiento/`: capa de negocio y transformacion. Limpia los registros, valida columnas, convierte tipos de datos, calcula variables derivadas y aplica filtros.
+- `visualizaciones/`: capa de presentacion analitica. Construye componentes visuales, metricas, paneles e indicadores con Streamlit y Plotly.
+- `paginas/`: capa de vistas. Organiza el dashboard en secciones funcionales como `Resumen`, `Analisis` y `Datos`.
+- `utilidades/`: capa de soporte. Centraliza configuraciones globales, variables de entorno, estilos y constantes reutilizables.
+
+### Flujo general de la aplicacion
+
+```text
+API publica datos.gov.co
+        |
+        v
+datos/cliente_api.py
+        |
+        v
+datos/cargador.py
+        |
+        v
+procesamiento/limpieza.py
+        |
+        v
+procesamiento/transformaciones.py + procesamiento/metricas.py
+        |
+        v
+visualizaciones/panel.py + visualizaciones/graficos.py
+        |
+        v
+paginas/*.py
+        |
+        v
+app.py
+```
+
+### Patron aplicado
+
+La solucion se apoya en una separacion por responsabilidades similar a una arquitectura en capas:
+
+- adquisicion de datos
+- preparacion y transformacion
+- calculo de indicadores
+- presentacion visual
+- navegacion de la aplicacion
+
+Este enfoque facilita el mantenimiento, porque permite modificar la fuente de datos, las reglas de procesamiento o las visualizaciones sin reescribir toda la aplicacion.
 
 ## Tecnologias utilizadas
 
@@ -93,6 +154,8 @@ StreamLit/
 2. Instalar las dependencias:
 
 ```bash
+python -m venv .venv 
+.venv\Scripts\activate  
 pip install -r requirements.txt
 ```
 
@@ -110,9 +173,66 @@ LIMITE_API=50000
 streamlit run app.py
 ```
 
-## Despliegue
+## Docker
 
-El proyecto incluye el archivo `render.yaml`, por lo que puede desplegarse facilmente en Render. Si se desea mayor estabilidad frente a limites de la API, se recomienda configurar la variable `SOCRATA_APP_TOKEN`.
+1. Construir la imagen:
+
+```bash
+docker build -t dashboard-peajes-colombia .
+```
+
+2. Ejecutar el contenedor localmente:
+
+```bash
+docker run --rm -p 10000:10000 ^
+  -e API_PEAJES_URL=https://www.datos.gov.co/resource/8yi9-t44c.json ^
+  -e LIMITE_API=50000 ^
+  -e SOCRATA_APP_TOKEN= ^
+  dashboard-peajes-colombia
+```
+
+3. Abrir la aplicacion en `http://localhost:10000`
+
+Tambien puedes cargar tu archivo `.env` al contenedor:
+
+```bash
+docker run --rm -p 10000:10000 --env-file .env dashboard-peajes-colombia
+```
+
+## Despliegue en Render
+
+El proyecto incluye `Dockerfile` y `render.yaml`, por lo que puede desplegarse en Render usando una imagen Docker. Si se desea mayor estabilidad frente a limites de la API, se recomienda configurar la variable `SOCRATA_APP_TOKEN`.
+
+### Opcion 1. Usando Blueprint con `render.yaml`
+
+1. Subir este repositorio a GitHub.
+2. Entrar a Render y elegir `New` > `Blueprint`.
+3. Conectar el repositorio.
+4. Confirmar la creacion del servicio `dashboard-peajes-colombia`.
+5. En Render, agregar el valor real de `SOCRATA_APP_TOKEN` en las variables de entorno.
+6. Ejecutar el despliegue.
+
+### Opcion 2. Creando el servicio manualmente
+
+1. Entrar a Render y elegir `New` > `Web Service`.
+2. Conectar el repositorio de GitHub.
+3. En `Environment`, seleccionar `Docker`.
+4. Verificar que Render detecte el `Dockerfile`.
+5. Configurar estas variables de entorno:
+
+```env
+API_PEAJES_URL=https://www.datos.gov.co/resource/8yi9-t44c.json
+LIMITE_API=50000
+SOCRATA_APP_TOKEN=
+```
+
+6. Crear el servicio y esperar a que termine el build.
+
+### Verificacion posterior al despliegue
+
+- Abrir la URL publica generada por Render.
+- Confirmar que carguen las paginas `Resumen`, `Analisis` y `Datos`.
+- Si la API responde con restricciones o errores de acceso, configurar `SOCRATA_APP_TOKEN` y redeployar.
 
 ## Procesamiento de datos realizado
 
