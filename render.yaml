@@ -9,6 +9,12 @@ services:
       - key: API_PEAJES_URL
         value: https://www.datos.gov.co/resource/8yi9-t44c.json
       - key: LIMITE_API
-        value: 50000
+        value: 3000
+      - key: MAX_REGISTROS_TOTAL
+        value: 8000
+      - key: MAX_FILAS_TABLA
+        value: 500
+      - key: MAX_FILAS_CSV
+        value: 2000
       - key: SOCRATA_APP_TOKEN
         sync: false

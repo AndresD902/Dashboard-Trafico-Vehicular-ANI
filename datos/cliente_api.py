@@ -9,6 +9,18 @@ from utilidades.configuracion import obtener_configuracion
 
 
 class ClienteAPI:
+    COLUMNAS_API = [
+        "idpeaje",
+        "peaje",
+        "categoriatarifa",
+        "desde",
+        "hasta",
+        "valortarifa",
+        "cantidadtrafico",
+        "cantidadevasores",
+        "cantidadexentos787",
+    ]
+
     def __init__(self) -> None:
         self.configuracion = obtener_configuracion()
 
@@ -22,13 +34,20 @@ class ClienteAPI:
         registros: list[dict[str, Any]] = []
         offset = 0
         limite = self.configuracion.limite_por_peticion
+        max_registros = self.configuracion.max_registros_totales
+        columnas = ",".join(self.COLUMNAS_API)
 
         while True:
+            restante = max_registros - len(registros)
+            if restante <= 0:
+                break
+
             try:
                 respuesta = requests.get(
                     self.configuracion.url_base,
                     params={
-                        "$limit": limite,
+                        "$select": columnas,
+                        "$limit": min(limite, restante),
                         "$offset": offset,
                         "$order": "hasta ASC",
                     },
@@ -58,9 +77,9 @@ class ClienteAPI:
 
             registros.extend(lote)
 
-            if len(lote) < limite:
+            if len(lote) < min(limite, restante):
                 break
 
-            offset += limite
+            offset += len(lote)
 
         return pd.DataFrame(registros)

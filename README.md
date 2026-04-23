@@ -164,7 +164,10 @@ pip install -r requirements.txt
 ```env
 API_PEAJES_URL=https://www.datos.gov.co/resource/8yi9-t44c.json
 SOCRATA_APP_TOKEN=
-LIMITE_API=50000
+LIMITE_API=3000
+MAX_REGISTROS_TOTAL=8000
+MAX_FILAS_TABLA=500
+MAX_FILAS_CSV=2000
 ```
 
 4. Ejecutar la aplicacion:
@@ -222,7 +225,10 @@ El proyecto incluye `Dockerfile` y `render.yaml`, por lo que puede desplegarse e
 
 ```env
 API_PEAJES_URL=https://www.datos.gov.co/resource/8yi9-t44c.json
-LIMITE_API=50000
+LIMITE_API=3000
+MAX_REGISTROS_TOTAL=8000
+MAX_FILAS_TABLA=500
+MAX_FILAS_CSV=2000
 SOCRATA_APP_TOKEN=
 ```
 

@@ -26,6 +26,7 @@ class ConfiguracionAPI:
     url_base: str
     token_app: str | None
     limite_por_peticion: int
+    max_registros_totales: int
     tiempo_espera: int = 30
 
 
@@ -36,7 +37,8 @@ def obtener_configuracion() -> ConfiguracionAPI:
             "https://www.datos.gov.co/resource/8yi9-t44c.json",
         ),
         token_app=os.getenv("SOCRATA_APP_TOKEN") or None,
-        limite_por_peticion=int(os.getenv("LIMITE_API", "50000")),
+        limite_por_peticion=int(os.getenv("LIMITE_API", "5000")),
+        max_registros_totales=int(os.getenv("MAX_REGISTROS_TOTAL", "12000")),
     )
 
 

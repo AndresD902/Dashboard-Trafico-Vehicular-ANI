@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import os
+
 import pandas as pd
 import streamlit as st
 
@@ -54,6 +56,8 @@ def main() -> None:
         "cantidadexentos787",
         "ingreso_estimado",
     ]
+    max_filas_tabla = int(os.getenv("MAX_FILAS_TABLA", "1000"))
+    max_filas_csv = int(os.getenv("MAX_FILAS_CSV", "5000"))
 
     resumen_categorias_df = frecuencia_categorias(datos)
     resumen_anual_df = registros_por_anio(datos)
@@ -83,8 +87,14 @@ def main() -> None:
             )
 
     st.markdown('<div class="subtitulo-seccion">Detalle de registros</div>', unsafe_allow_html=True)
+    datos_tabla = datos[columnas_visibles].sort_values("hasta", ascending=False).head(max_filas_tabla)
+    if len(datos) > max_filas_tabla:
+        st.caption(
+            f"Se muestran solo los primeros {max_filas_tabla:,} registros para cuidar memoria y rendimiento en despliegue."
+            .replace(",", ".")
+        )
     st.dataframe(
-        datos[columnas_visibles].sort_values("hasta", ascending=False),
+        datos_tabla,
         use_container_width=True,
         hide_index=True,
     )
@@ -92,9 +102,10 @@ def main() -> None:
         "Conclusion: primero entiendes la composicion de la muestra y despues usas la tabla para validar tarifas, trafico y registros particulares."
     )
 
-    csv = datos[columnas_visibles].to_csv(index=False).encode("utf-8")
+    datos_csv = datos[columnas_visibles].head(max_filas_csv)
+    csv = datos_csv.to_csv(index=False).encode("utf-8")
     st.download_button(
-        "Descargar datos filtrados en CSV",
+        f"Descargar hasta {max_filas_csv:,} filas en CSV".replace(",", "."),
         data=csv,
         file_name="datos_filtrados_peajes.csv",
         mime="text/csv",
